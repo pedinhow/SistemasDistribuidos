@@ -16,12 +16,13 @@ public class CalculatorServer {
     }
 
     public void startServer() throws IOException {
-        // 1. Registrar-se no Servidor de Diretório
-        registerWithDirectory();
 
-        // 2. Iniciar o servidor multithread para atender clientes
+        // 1. Iniciar o servidor multithread para atender clientes
         ServerSocket serverSocket = new ServerSocket(myPort);
         System.out.println("Servidor de Calculadora (Worker) rodando na porta " + myPort);
+
+        // 2. Registrar-se no Servidor de Diretório
+        registerWithDirectory();
 
         try {
             while (true) {
@@ -87,3 +88,5 @@ public class CalculatorServer {
         }
     }
 }
+
+// TODO APARECE DUAS VEZES O 9001
