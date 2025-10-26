@@ -19,7 +19,7 @@ public class NodeHandler implements Runnable {
         try (DataInputStream fluxoEntrada = new DataInputStream(socket.getInputStream())) {
 
             String message = fluxoEntrada.readUTF();
-            node.log("(Log de Recebimento) Mensagem recebida: '" + message + "'"); //
+            node.log("(Log de Recebimento) Mensagem recebida: '" + message + "'");
 
             String[] parts = message.split(":");
             if (parts.length < 2) {
@@ -42,7 +42,7 @@ public class NodeHandler implements Runnable {
             }
 
         } catch (IOException e) {
-            node.log("ERRO: Falha na thread handler: " + e.getMessage());
+            // Silencioso, apenas o nó se desconectou
         } finally {
             try {
                 socket.close();
@@ -52,7 +52,7 @@ public class NodeHandler implements Runnable {
 
     /**
      * Processa uma mensagem de busca.
-     *
+     * (Original de NodeHandler.java, COM CORREÇÃO DE LOOP)
      */
     private void handleSearch(String fileName, String[] parts) {
         if (parts.length != 3) {
@@ -62,6 +62,8 @@ public class NodeHandler implements Runnable {
 
         int originPort = Integer.parseInt(parts[2]);
 
+        // --- INÍCIO DA CORREÇÃO ---
+
         // 1. Verifica se o arquivo está neste nó
         if (node.hasFile(fileName)) {
             node.log("...Arquivo '" + fileName + "' ENCONTRADO! Respondendo para origem (Porta " + originPort + ").");
@@ -70,18 +72,27 @@ public class NodeHandler implements Runnable {
             String response = "FOUND:" + fileName + ":" + node.id;
             node.sendMessage(originPort, response);
 
+        } else if (originPort == node.port) {
+            // 2. O arquivo não é meu, E FUI EU QUE COMECEI A BUSCA.
+            // A mensagem deu a volta completa no anel.
+            node.log("...Arquivo '" + fileName + "' NÃO ENCONTRADO (busca completou o anel).");
+            // A mensagem "morre" aqui. Não encaminhamos.
+
         } else {
-            // 2. Se não está, repassa para o SUCESSOR
+            // 3. Se não está, e não sou a origem, repassa para o SUCESSOR
             node.log("...Arquivo '" + fileName + "' não encontrado. Repassando para sucessor (Porta " + node.successorPort + ").");
 
             // Repassa a mensagem original, sem alterá-la
             String originalMessage = "SEARCH:" + fileName + ":" + originPort;
             node.sendMessage(node.successorPort, originalMessage);
         }
+
+        // --- FIM DA CORREÇÃO ---
     }
 
     /**
      * Processa uma mensagem de resposta (FOUND).
+     * (Original de NodeHandler.java)
      */
     private void handleFound(String fileName, String[] parts) {
         if (parts.length != 3) {
