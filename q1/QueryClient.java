@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class QueryClient {
 
     public static void main(String[] args) throws IOException {
-        String host = "localhost";
+        String host = "localhost"; // TODO colocar meu ip
         int porta = 5000;
 
         // Conecta ao servidor
