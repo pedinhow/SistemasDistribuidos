@@ -8,41 +8,37 @@ import java.util.Scanner;
 
 public class QueryClient {
 
+    private static final String HOST = "localhost";
+    private static final int PORT = 5000;
+
     public static void main(String[] args) throws IOException {
-        String host = "172.17.232.64"; // TROCAR O IP DO HOST
-        int porta = 5000;
-
-        // Conecta ao servidor
-        Socket socket = new Socket(host, porta);
-
-        DataOutputStream fluxoSaida = new DataOutputStream(socket.getOutputStream());
-        DataInputStream fluxoEntrada = new DataInputStream(socket.getInputStream());
+        Socket socket = new Socket(HOST, PORT);
+        DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
         // 1. Se inscreve para receber atualizações
-        fluxoSaida.writeUTF("SUBSCRIBE");
+        outputStream.writeUTF("SUBSCRIBE");
         System.out.println("Conectado ao Mini-DNS como Requisitante (assinante).");
         System.out.println("Digite um nome (ex: servidor1) para consultar o IP.");
         System.out.println("Aguardando consultas ou atualizações do servidor...");
 
         // 2. Inicia a thread para ouvir o servidor
-        ServerListener listener = new ServerListener(fluxoEntrada);
-        Thread listenerThread = new Thread(listener);
+        Thread listenerThread = new Thread(new ServerListener(inputStream));
         listenerThread.start();
 
         // 3. Loop principal para enviar consultas (entrada do usuário)
-        Scanner teclado = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         try {
-            while (teclado.hasNextLine()) {
-                String nome = teclado.nextLine();
-                if (nome.equalsIgnoreCase("sair")) {
+            while (scanner.hasNextLine()) {
+                String name = scanner.nextLine();
+                if (name.equalsIgnoreCase("sair")) {
                     break;
                 }
-                // Envia a consulta
-                fluxoSaida.writeUTF("QUERY:" + nome);
+                outputStream.writeUTF("QUERY:" + name);
             }
         } finally {
             System.out.println("Fechando cliente.");
-            teclado.close();
+            scanner.close();
             socket.close();
         }
     }
@@ -50,19 +46,17 @@ public class QueryClient {
 
 // Classe Runnable para ouvir o servidor em uma thread separada
 class ServerListener implements Runnable {
-    private DataInputStream fluxoEntrada;
+    private final DataInputStream inputStream;
 
-    public ServerListener(DataInputStream fluxoEntrada) {
-        this.fluxoEntrada = fluxoEntrada;
+    public ServerListener(DataInputStream inputStream) {
+        this.inputStream = inputStream;
     }
 
     @Override
     public void run() {
         try {
             String messageFromServer;
-            // Fica em loop lendo mensagens do servidor
-            while ((messageFromServer = fluxoEntrada.readUTF()) != null) {
-                // Imprime qualquer mensagem recebida (seja resposta ou push notification)
+            while ((messageFromServer = inputStream.readUTF()) != null) {
                 System.out.println(messageFromServer);
             }
         } catch (IOException e) {

@@ -11,20 +11,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DirectoryServer {
 
-    // Mapa thread-safe: "NomeDoServico" -> Lista de "ip:porta"
+    // Mapa thread-safe: "NomeDoServico" -> Lista de "ip:porta" [cite: 88, 249]
     static Map<String, List<String>> serviceRegistry = new ConcurrentHashMap<>();
 
-    // Contador atômico para o balanceamento Round Robin
+    // Contador atômico para o balanceamento Round Robin [cite: 97, 258]
     static AtomicInteger roundRobinCounter = new AtomicInteger(0);
+    private static final int PORT = 5000;
 
     public static void main(String[] args) throws IOException {
-        int porta = 5000;
-        ServerSocket serverSocket = new ServerSocket(porta);
-        System.out.println("Servidor de Diretório rodando na porta " + porta);
-
-        try {
+        System.out.println("Servidor de Diretório (Base) rodando na porta " + PORT);
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
-                // Aguarda conexões (de Clientes ou Servidores de Calculadora)
                 Socket socket = serverSocket.accept();
                 System.out.println("Nova conexão: " + socket.getInetAddress());
 
@@ -33,24 +30,20 @@ public class DirectoryServer {
                 Thread thread = new Thread(handler);
                 thread.start();
             }
-        } finally {
-            serverSocket.close();
         }
     }
 
     /**
-     * Registra um novo serviço ou adiciona um novo provedor a um serviço existente.
+     * Registra um novo serviço.
      */
     public static void registerService(String serviceName, String address) {
-        // computeIfAbsent garante a criação thread-safe da lista
         serviceRegistry.computeIfAbsent(serviceName, k -> new CopyOnWriteArrayList<>())
                 .add(address);
         System.out.println("[REGISTRO] Serviço " + serviceName + " registrado em " + address);
-        System.out.println("Registro atual: " + serviceRegistry);
     }
 
     /**
-     * Descobre um serviço usando balanceamento Round Robin.
+     * [cite_start]Descobre um serviço usando balanceamento Round Robin. [cite: 92-97, 253-258]
      */
     public static String discoverService(String serviceName) {
         List<String> addresses = serviceRegistry.get(serviceName);

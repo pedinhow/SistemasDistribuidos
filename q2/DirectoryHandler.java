@@ -7,9 +7,9 @@ import java.net.Socket;
 
 public class DirectoryHandler implements Runnable {
 
-    private Socket socket;
-    private DataInputStream fluxoEntrada;
-    private DataOutputStream fluxoSaida;
+    private final Socket socket;
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
 
     public DirectoryHandler(Socket socket) {
         this.socket = socket;
@@ -18,24 +18,24 @@ public class DirectoryHandler implements Runnable {
     @Override
     public void run() {
         try {
-            fluxoEntrada = new DataInputStream(socket.getInputStream());
-            fluxoSaida = new DataOutputStream(socket.getOutputStream());
+            inputStream = new DataInputStream(socket.getInputStream());
+            outputStream = new DataOutputStream(socket.getOutputStream());
 
-            String message = fluxoEntrada.readUTF();
+            String message = inputStream.readUTF();
 
             if (message.startsWith("REGISTER:")) {
-                // Formato: REGISTER:serviceName:ip:porta
+                // Formato: REGISTER:serviceName:ip:porta [cite: 88, 249]
                 String[] parts = message.substring(9).split(":");
                 String serviceName = parts[0];
                 String address = parts[1] + ":" + parts[2];
                 DirectoryServer.registerService(serviceName, address);
-                fluxoSaida.writeUTF("OK");
+                outputStream.writeUTF("OK");
 
             } else if (message.startsWith("DISCOVER:")) {
-                // Formato: DISCOVER:serviceName
+                // Formato: DISCOVER:serviceName [cite: 90, 251]
                 String serviceName = message.substring(9);
                 String address = DirectoryServer.discoverService(serviceName);
-                fluxoSaida.writeUTF(address);
+                outputStream.writeUTF(address);
             }
 
         } catch (IOException e) {
@@ -47,8 +47,8 @@ public class DirectoryHandler implements Runnable {
 
     private void closeConnections() {
         try {
-            if (fluxoEntrada != null) fluxoEntrada.close();
-            if (fluxoSaida != null) fluxoSaida.close();
+            if (inputStream != null) inputStream.close();
+            if (outputStream != null) outputStream.close();
             if (socket != null) socket.close();
         } catch (IOException e) {
             e.printStackTrace();
