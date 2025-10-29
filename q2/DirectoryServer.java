@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DirectoryServer {
 
-    // mapa thread-safe: "NomeDoServico" -> Lista de "ip:porta" [cite: 88, 249]
+    // mapa thread-safe: "NomeDoServico" -> Lista de "ip:porta"
     static Map<String, List<String>> serviceRegistry = new ConcurrentHashMap<>();
 
     // contador atômico para o balanceamento Round Robin
@@ -33,7 +33,7 @@ public class DirectoryServer {
         }
     }
 
-    // registra um novo serviço.
+    // registra um novo serviço
     public static void registerService(String serviceName, String address) {
         serviceRegistry.computeIfAbsent(serviceName, k -> new CopyOnWriteArrayList<>())
                 .add(address);

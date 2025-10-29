@@ -35,23 +35,29 @@ public class CalculatorServer {
     }
 
     private void registerWithDirectory() {
-        try (Socket socket = new Socket(DIRECTORY_HOST, DIRECTORY_PORT);
-             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-             DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
+        // serviços que este servidor oferece
+        String[] services = {"SOMA", "SUBTRACAO", "MULTIPLICACAO", "DIVISAO"};
+        System.out.println("Worker(" + port + "): Registrando serviços no Diretório...");
 
-            // Formato: REGISTER:serviceName:ip:porta
-            String registerMessage = "REGISTER:Calculadora:localhost:" + port;
-            outputStream.writeUTF(registerMessage);
+        for (String service : services) {
+            try (Socket socket = new Socket(DIRECTORY_HOST, DIRECTORY_PORT);
+                 DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                 DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
-            String response = inputStream.readUTF();
-            if ("OK".equals(response)) {
-                System.out.println("Worker(" + port + "): Registrado com sucesso no Diretório.");
-            } else {
-                System.out.println("Worker(" + port + "): Falha ao registrar no Diretório.");
+                // formato: REGISTER:serviceName:ip:porta [cite: 88]
+                String registerMessage = "REGISTER:" + service + ":localhost:" + port;
+                outputStream.writeUTF(registerMessage);
+
+                String response = inputStream.readUTF();
+                if ("OK".equals(response)) {
+                    System.out.println("Worker(" + port + "): Serviço " + service + " registrado com sucesso.");
+                } else {
+                    System.out.println("Worker(" + port + "): Falha ao registrar " + service + ".");
+                }
+
+            } catch (IOException e) {
+                System.err.println("Erro ao conectar ao Servidor de Diretório: " + e.getMessage());
             }
-
-        } catch (IOException e) {
-            System.err.println("Erro ao conectar ao Servidor de Diretório: " + e.getMessage());
         }
     }
 

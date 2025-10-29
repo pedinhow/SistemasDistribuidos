@@ -37,12 +37,14 @@ public class CalculatorClient {
                 String num1 = parts[1];
                 String num2 = parts[2];
 
-                // descobrir o serviço no diretório
-                String serviceAddress = discoverService("Calculadora");
+                // descobrir o serviço no Diretório
+                String serviceAddress = discoverService(operation);
                 if ("NOT_FOUND".equals(serviceAddress)) {
-                    System.out.println("Erro: Serviço 'Calculadora' não encontrado no diretório.");
+                    System.out.println("Erro: Serviço '" + operation + "' não encontrado no diretório.");
                     continue;
                 }
+
+                System.out.println("Serviço '" + operation + "' descoberto em: " + serviceAddress + " (via Round Robin)");
 
                 // chamar o serviço de calculadora
                 String result = callCalculator(serviceAddress, operation, num1, num2);
