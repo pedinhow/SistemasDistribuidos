@@ -15,26 +15,19 @@ public class NodeHandler implements Runnable {
 
     @Override
     public void run() {
-        try (DataInputStream dis = new DataInputStream(socket.getInputStream())) {
-            String payload = dis.readUTF();
-            node.log("Recebido: " + payload);
+        try (DataInputStream in = new DataInputStream(socket.getInputStream())) {
+            String payload = in.readUTF();
+            node.log("Mensagem recebida: " + payload);
 
-            if (payload.startsWith("SEARCH")) {
+            String[] parts = payload.split(";");
+            if (parts[0].equals("SEARCH")) {
                 node.processMessage(payload);
-            } else if (payload.startsWith("FOUND")) {
-                handleFound(payload.split(";"));
+            } else if (parts[0].equals("FOUND")) {
+                node.log("!!! SUCESSO !!! Arquivo '" + parts[1] + "' encontrado no nó " + parts[2]);
             }
-        } catch (Exception e) {
-            node.log("Erro handler: " + e.getMessage());
-        } finally {
-            try { socket.close(); } catch (Exception e) {}
-        }
-    }
 
-    private void handleFound(String[] parts) {
-        if (parts.length < 3) return;
-        String file = parts[1];
-        String foundAt = parts[2];
-        node.log("!!! SUCESSO !!! O arquivo '" + file + "' foi encontrado no Nó " + foundAt);
+        } catch (Exception e) {
+            node.log("Erro no handler: " + e.getMessage());
+        }
     }
 }
