@@ -39,7 +39,7 @@ public class CalculatorServer {
         String[] services = {"SOMA", "SUBTRACAO", "MULTIPLICACAO", "DIVISAO"};
         System.out.println("Worker(" + port + "): Registrando serviços no Diretório...");
 
-        String myHost = "172.25.10.123";
+        String myHost = "172.17.232.64";
 
         for (String service : services) {
             try (Socket socket = new Socket(DIRECTORY_HOST, DIRECTORY_PORT);
