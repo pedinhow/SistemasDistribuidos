@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class UpdateClient {
+public class RegistryClient {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         String host = "localhost";
