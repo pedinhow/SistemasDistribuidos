@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class QueryClient {
 
-    private static final String HOST = "localhost";
+    private static final String HOST = "172.17.232.64";
     private static final int PORT = 5000;
 
     public static void main(String[] args) throws IOException {
