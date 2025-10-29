@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class CalculatorClient {
 
-    private final String directoryHost = "localhost";
+    private final String directoryHost = "172.17.232.64";
     private final int directoryPort = 5000;
 
     public static void main(String[] args) {

@@ -9,7 +9,7 @@ import java.net.Socket;
 public class CalculatorServer {
 
     private final int port;
-    private static final String DIRECTORY_HOST = "localhost";
+    private static final String DIRECTORY_HOST = "172.17.232.64";
     private static final int DIRECTORY_PORT = 5000; // Porta do q2.DirectoryServer
 
     public CalculatorServer(int port) {
