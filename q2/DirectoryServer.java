@@ -11,10 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DirectoryServer {
 
-    // Mapa thread-safe: "NomeDoServico" -> Lista de "ip:porta" [cite: 88, 249]
+    // mapa thread-safe: "NomeDoServico" -> Lista de "ip:porta" [cite: 88, 249]
     static Map<String, List<String>> serviceRegistry = new ConcurrentHashMap<>();
 
-    // Contador atômico para o balanceamento Round Robin [cite: 97, 258]
+    // contador atômico para o balanceamento Round Robin
     static AtomicInteger roundRobinCounter = new AtomicInteger(0);
     private static final int PORT = 5000;
 
@@ -25,7 +25,7 @@ public class DirectoryServer {
                 Socket socket = serverSocket.accept();
                 System.out.println("Nova conexão: " + socket.getInetAddress());
 
-                // Cria uma nova thread para lidar com a conexão
+                // cria uma nova thread para lidar com a conexão
                 DirectoryHandler handler = new DirectoryHandler(socket);
                 Thread thread = new Thread(handler);
                 thread.start();
@@ -33,18 +33,14 @@ public class DirectoryServer {
         }
     }
 
-    /**
-     * Registra um novo serviço.
-     */
+    // registra um novo serviço.
     public static void registerService(String serviceName, String address) {
         serviceRegistry.computeIfAbsent(serviceName, k -> new CopyOnWriteArrayList<>())
                 .add(address);
         System.out.println("[REGISTRO] Serviço " + serviceName + " registrado em " + address);
     }
 
-    /**
-     * [cite_start]Descobre um serviço usando balanceamento Round Robin. [cite: 92-97, 253-258]
-     */
+    //Descobre um serviço usando balanceamento Round Robin.
     public static String discoverService(String serviceName) {
         List<String> addresses = serviceRegistry.get(serviceName);
 

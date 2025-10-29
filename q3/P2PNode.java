@@ -43,8 +43,8 @@ public class P2PNode {
 
     public void start() {
         log("Nó " + nodeId + " iniciado. Ouvindo na porta " + port + ". Sucessor na porta " + successorPort);
-        new Thread(this::startServer).start(); // Inicia o servidor (ouvinte)
-        startConsole(); // Inicia o console (cliente)
+        new Thread(this::startServer).start(); // inicia o servidor
+        startConsole(); // inicia o cliente
     }
 
     private void startConsole() {
@@ -59,7 +59,7 @@ public class P2PNode {
                     String[] parts = userInput.split(" ");
                     if (parts.length == 2) {
                         String file = parts[1];
-                        // Formato da mensagem: "SEARCH;ARQUIVO;ID_ORIGEM;PORTA_ORIGEM"
+                        // formato da mensagem: "SEARCH;ARQUIVO;ID_ORIGEM;PORTA_ORIGEM"
                         String payload = "SEARCH;" + file + ";" + this.nodeId + ";" + this.port;
                         processMessage(payload);
                     } else {
@@ -79,7 +79,7 @@ public class P2PNode {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                // Cada conexão é tratada em uma nova thread
+                // cada conexão é tratada em uma nova thread
                 new Thread(new NodeHandler(clientSocket, this)).start();
             }
         } catch (Exception e) {
@@ -101,13 +101,13 @@ public class P2PNode {
             if (isResponsible(file)) {
                 log("ARQUIVO ENCONTRADO! '" + file + "' está neste nó (" + nodeId + ").");
                 log("(Busca originada por: " + originId + ")");
-                // Envia a resposta de volta para a ORIGEM
+                // envia a resposta de volta para a origem
                 String response = "FOUND;" + file + ";" + this.nodeId;
                 sendMessage(originPort, response);
             } else {
-                // Se não sou eu, encaminho para o sucessor
+                // se não está aqui, encaminho para o sucessor
                 log("Arquivo '" + file + "' não está aqui. Encaminhando para " + successorPort + "...");
-                sendMessage(successorPort, payload); // Encaminha a mensagem original
+                sendMessage(successorPort, payload); // encaminha a mensagem original
             }
         } catch (Exception e) {
             log("Erro ao processar mensagem: " + e.getMessage());
@@ -128,7 +128,7 @@ public class P2PNode {
         try {
             int idNum = Integer.parseInt(nodeId.replace("P", ""));
             int fileNum = Integer.parseInt(file.replaceAll("(?i)arquivo", ""));
-            // Define o intervalo de responsabilidade [cite: 105-110, 273-278]
+            // define o intervalo de responsabilidade
             int min = (idNum * 10) + 1;
             int max = (idNum * 10) + 10;
             return (fileNum >= min && fileNum <= max);
@@ -139,7 +139,7 @@ public class P2PNode {
     }
 
     private void initializeFiles() {
-        // Apenas para log, a lógica real está em isResponsible
+        // apenas para log, a lógica real está em isResponsible
         int idNum = Integer.parseInt(nodeId.replace("P", ""));
         int min = (idNum * 10) + 1;
         int max = (idNum * 10) + 10;

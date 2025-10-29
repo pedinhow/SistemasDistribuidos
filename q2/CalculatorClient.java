@@ -37,14 +37,14 @@ public class CalculatorClient {
                 String num1 = parts[1];
                 String num2 = parts[2];
 
-                // 1. Descobrir o serviço no Diretório [cite: 90, 251]
+                // descobrir o serviço no diretório
                 String serviceAddress = discoverService("Calculadora");
                 if ("NOT_FOUND".equals(serviceAddress)) {
                     System.out.println("Erro: Serviço 'Calculadora' não encontrado no diretório.");
                     continue;
                 }
 
-                // 2. Chamar o serviço de calculadora
+                // chamar o serviço de calculadora
                 String result = callCalculator(serviceAddress, operation, num1, num2);
                 System.out.println("Resultado: " + result);
 
@@ -62,7 +62,7 @@ public class CalculatorClient {
              DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
             outputStream.writeUTF("DISCOVER:" + serviceName);
-            return inputStream.readUTF(); // Retorna o endereço (ip:porta) ou "NOT_FOUND"
+            return inputStream.readUTF(); // retorna o endereço
         }
     }
 
@@ -76,7 +76,7 @@ public class CalculatorClient {
              DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
             outputStream.writeUTF(op + ":" + n1 + ":" + n2);
-            return inputStream.readUTF(); // Retorna o resultado
+            return inputStream.readUTF(); // retorna o resultado
         }
     }
 }

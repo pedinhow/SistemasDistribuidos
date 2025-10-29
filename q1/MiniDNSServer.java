@@ -9,10 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MiniDNSServer {
-    // Mapa thread-safe para armazenar os registros DNS
+    // mapa thread-safe para armazenar os registros DNS
     static Map<String, String> dnsMap = new ConcurrentHashMap<>();
 
-    // Lista thread-safe para manter os clientes "assinantes" (Requisitantes)
+    // lista thread-safe para manter os clientes requisitantes
     static List<ClientHandler> subscribers = new CopyOnWriteArrayList<>();
     private static final int PORT = 5000;
 
@@ -26,7 +26,7 @@ public class MiniDNSServer {
                 Socket clientSocket = serverSocket.accept(); // Aguarda conexões
                 System.out.println("Nova conexão: " + clientSocket.getInetAddress().getHostAddress());
 
-                // Cria uma nova thread para lidar com o cliente
+                // cria uma nova thread para lidar com o cliente
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 Thread thread = new Thread(clientHandler);
                 thread.start();
@@ -35,7 +35,7 @@ public class MiniDNSServer {
     }
 
     private static void initializeDnsMap() {
-        // Dados iniciais conforme a prática [cite: 76-80, 230-231]
+        // dados iniciais citados na prática offline
         dnsMap.put("servidor1", "192.168.0.10");
         dnsMap.put("servidor2", "192.168.0.20");
         dnsMap.put("servidor3", "192.168.0.30");
@@ -48,7 +48,7 @@ public class MiniDNSServer {
         dnsMap.put("servidor10", "192.168.0.100");
     }
 
-    // Método para notificar todos os assinantes sobre uma atualização [cite: 83, 236]
+    // metodo para notificar todos os assinantes sobre uma atualização
     public static void notifySubscribers(String name, String ip) {
         String updateMessage = "[PUSH_NOTIFICATION] Binding dinâmico: " + name + " agora é " + ip;
         System.out.println("Notificando " + subscribers.size() + " assinantes: " + updateMessage);

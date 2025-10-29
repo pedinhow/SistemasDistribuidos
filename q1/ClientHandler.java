@@ -21,7 +21,7 @@ public class ClientHandler implements Runnable {
             inputStream = new DataInputStream(socket.getInputStream());
             outputStream = new DataOutputStream(socket.getOutputStream());
 
-            // Identifica o tipo de cliente
+            // identifica o tipo do cliente
             String clientType = inputStream.readUTF();
 
             if ("SUBSCRIBE".equals(clientType)) {
@@ -41,7 +41,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // Loop para clientes Requisitantes (Query/Subscribe)
+    // loop dos clientes requisitantes (query/subscribe)
     private void handleSubscribedClient() throws IOException {
         String message;
         while ((message = inputStream.readUTF()) != null) {
@@ -53,7 +53,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // Loop para clientes Registradores (Update)
+    // loop para clientes registradores (update)
     private void handleRegisterClient() throws IOException {
         String message;
         while ((message = inputStream.readUTF()) != null) {
@@ -64,24 +64,18 @@ public class ClientHandler implements Runnable {
                     String name = parts[0];
                     String ip = parts[1];
 
-                    // (Opcional: A prática de SD não exigia essa trava, mas a de Segurança sim)
-                    // if (!name.equals("servidor1") && !name.equals("servidor4") && !name.equals("servidor9")) {
-                    //     sendMessage("[ERRO] Permissão negada para atualizar " + name);
-                    //     continue;
-                    // }
-
                     MiniDNSServer.dnsMap.put(name, ip);
                     System.out.println("REGISTRO ATUALIZADO: " + name + " -> " + ip);
                     sendMessage("[OK] Registro de " + name + " atualizado.");
 
-                    // Dispara a notificação para todos os assinantes [cite: 83, 236]
+                    // dispara a notificação para todos os assinantes
                     MiniDNSServer.notifySubscribers(name, ip);
                 }
             }
         }
     }
 
-    // Método para enviar mensagem para este cliente
+    // metodo para enviar mensagem para este cliente
     public void sendMessage(String message) {
         try {
             outputStream.writeUTF(message);

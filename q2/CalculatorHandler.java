@@ -18,7 +18,7 @@ public class CalculatorHandler implements Runnable {
         try (DataInputStream inputStream = new DataInputStream(socket.getInputStream());
              DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
 
-            // Formato esperado: OPERACAO:num1:num2 (ex: "SOMA:10:5")
+            // formato esperado: OPERACAO:num1:num2 (ex: "SOMA:10:5")
             String request = inputStream.readUTF();
             String[] parts = request.split(":");
 
@@ -28,6 +28,7 @@ public class CalculatorHandler implements Runnable {
             }
 
             String operation = parts[0].toUpperCase();
+
             double num1 = Double.parseDouble(parts[1]);
             double num2 = Double.parseDouble(parts[2]);
             double result;

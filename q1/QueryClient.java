@@ -16,17 +16,17 @@ public class QueryClient {
         DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
         DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
-        // 1. Se inscreve para receber atualizações
+        // se inscreve para receber atualizacoes
         outputStream.writeUTF("SUBSCRIBE");
         System.out.println("Conectado ao Mini-DNS como Requisitante (assinante).");
         System.out.println("Digite um nome (ex: servidor1) para consultar o IP.");
         System.out.println("Aguardando consultas ou atualizações do servidor...");
 
-        // 2. Inicia a thread para ouvir o servidor
+        // inicia a thread para ouvir o servidor
         Thread listenerThread = new Thread(new ServerListener(inputStream));
         listenerThread.start();
 
-        // 3. Loop principal para enviar consultas (entrada do usuário)
+        // loop principal para enviar consultas
         Scanner scanner = new Scanner(System.in);
         try {
             while (scanner.hasNextLine()) {
@@ -44,7 +44,7 @@ public class QueryClient {
     }
 }
 
-// Classe Runnable para ouvir o servidor em uma thread separada
+// runnable para ouvir o servidor em uma thread separada
 class ServerListener implements Runnable {
     private final DataInputStream inputStream;
 

@@ -24,7 +24,7 @@ public class DirectoryHandler implements Runnable {
             String message = inputStream.readUTF();
 
             if (message.startsWith("REGISTER:")) {
-                // Formato: REGISTER:serviceName:ip:porta [cite: 88, 249]
+                // formato: REGISTER:serviceName:ip:porta
                 String[] parts = message.substring(9).split(":");
                 String serviceName = parts[0];
                 String address = parts[1] + ":" + parts[2];
@@ -32,7 +32,7 @@ public class DirectoryHandler implements Runnable {
                 outputStream.writeUTF("OK");
 
             } else if (message.startsWith("DISCOVER:")) {
-                // Formato: DISCOVER:serviceName [cite: 90, 251]
+                // formato: DISCOVER:serviceName
                 String serviceName = message.substring(9);
                 String address = DirectoryServer.discoverService(serviceName);
                 outputStream.writeUTF(address);

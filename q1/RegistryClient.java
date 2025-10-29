@@ -16,7 +16,7 @@ public class RegistryClient {
              DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
              DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
-            // 1. Se identifica como Registrador
+            // se identifica como Registrador
             outputStream.writeUTF("REGISTER");
 
             // 2. Envia as atualizações necessárias [cite: 82, 234]

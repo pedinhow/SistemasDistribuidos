@@ -17,10 +17,10 @@ public class CalculatorServer {
     }
 
     public void startServer() throws IOException {
-        // 1. Registrar-se no Servidor de Diretório
+        // registrar-se no servidor de diretório
         registerWithDirectory();
 
-        // 2. Iniciar o servidor multithread para atender clientes
+        // iniciar o servidor multithread para atender clientes
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Servidor de Calculadora (Worker) rodando na porta " + port);
             while (true) {
@@ -39,7 +39,7 @@ public class CalculatorServer {
              DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
              DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
-            // Formato: REGISTER:serviceName:ip:porta [cite: 88, 249]
+            // Formato: REGISTER:serviceName:ip:porta
             String registerMessage = "REGISTER:Calculadora:localhost:" + port;
             outputStream.writeUTF(registerMessage);
 
