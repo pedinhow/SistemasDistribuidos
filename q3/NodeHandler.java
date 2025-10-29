@@ -18,16 +18,11 @@ public class NodeHandler implements Runnable {
         try (DataInputStream in = new DataInputStream(socket.getInputStream())) {
             String payload = in.readUTF();
             node.log("Mensagem recebida: " + payload);
-
-            String[] parts = payload.split(";");
-            if (parts[0].equals("SEARCH")) {
-                node.processMessage(payload);
-            } else if (parts[0].equals("FOUND")) {
-                node.log("!!! SUCESSO !!! Arquivo '" + parts[1] + "' encontrado no nó " + parts[2]);
-            }
-
+            node.processMessage(payload);
         } catch (Exception e) {
             node.log("Erro no handler: " + e.getMessage());
+        } finally {
+            try { socket.close(); } catch (Exception ignored) {}
         }
     }
 }
