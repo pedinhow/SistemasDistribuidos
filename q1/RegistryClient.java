@@ -19,20 +19,20 @@ public class RegistryClient {
             // se identifica como Registrador
             outputStream.writeUTF("REGISTER");
 
-            // 2. Envia as atualizações necessárias [cite: 82, 234]
+            // envia as atualizações necessárias
             System.out.println("Enviando atualização para servidor1...");
             outputStream.writeUTF("UPDATE:servidor1:192.168.0.111");
-            System.out.println(inputStream.readUTF()); // Lê "OK"
+            System.out.println(inputStream.readUTF());
             Thread.sleep(1000);
 
             System.out.println("Enviando atualização para servidor4...");
             outputStream.writeUTF("UPDATE:servidor4:192.168.0.444");
-            System.out.println(inputStream.readUTF()); // Lê "OK"
+            System.out.println(inputStream.readUTF());
             Thread.sleep(1000);
 
             System.out.println("Enviando atualização para servidor9...");
             outputStream.writeUTF("UPDATE:servidor9:192.168.0.999");
-            System.out.println(inputStream.readUTF()); // Lê "OK"
+            System.out.println(inputStream.readUTF());
 
             System.out.println("Atualizações concluídas. Fechando cliente.");
 
