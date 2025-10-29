@@ -13,33 +13,35 @@ public class P2PNode {
 
     private final String nodeId; // ex: "P0"
     private final int port;
-    private final String successorHost = "localhost";
+    private final String successorHost;
     private final int successorPort;
     private final Set<String> localFiles = new HashSet<>();
 
-    public P2PNode(String nodeId, int port, int successorPort) {
+    public P2PNode(String nodeId, int port, String successorHost, int successorPort) {
         this.nodeId = nodeId;
         this.port = port;
+        this.successorHost = successorHost;
         this.successorPort = successorPort;
         this.initializeFiles();
     }
 
     public static void main(String[] args) {
-        if (args.length < 3) {
-            System.err.println("Uso: java q3.P2PNode <meu_id> <minha_porta> <porta_sucessor>");
-            System.err.println("Exemplo (P0): java q3.P2PNode P0 6000 6001");
-            System.err.println("Exemplo (P5): java q3.P2PNode P5 6005 6000 (fecha o anel)");
+        if (args.length < 4) {
+            System.err.println("Uso: java q3.P2PNode <meu_id> <minha_porta> <ip_sucessor> <porta_sucessor>");
+            System.err.println("Exemplo: java q3.P2PNode P0 6000 127.0.0.1 6001");
             System.exit(1);
         }
         try {
             String id = args[0];
             int port = Integer.parseInt(args[1]);
-            int successorPort = Integer.parseInt(args[2]);
-            new P2PNode(id, port, successorPort).start();
+            String successorHost = args[2];
+            int successorPort = Integer.parseInt(args[3]);
+            new P2PNode(id, port, successorHost, successorPort).start();
         } catch (Exception e) {
             System.err.println("Erro ao iniciar nó: " + e.getMessage());
         }
     }
+
 
     public void start() {
         log("Nó " + nodeId + " iniciado. Ouvindo na porta " + port + ". Sucessor na porta " + successorPort);
