@@ -53,6 +53,7 @@ public class P2PNode {
         try (BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in))) {
             System.out.println("Comandos: SEARCH <arquivo> (ex: SEARCH arquivo25) | SAIR");
             System.out.print(nodeId + "> ");
+
             String userInput;
             while ((userInput = consoleIn.readLine()) != null) {
                 if ("SAIR".equalsIgnoreCase(userInput)) break;
@@ -61,21 +62,28 @@ public class P2PNode {
                     String[] parts = userInput.split(" ");
                     if (parts.length == 2) {
                         String file = parts[1];
-                        // formato da mensagem: "SEARCH;ARQUIVO;ID_ORIGEM;PORTA_ORIGEM"
-                        String payload = "SEARCH;" + file + ";" + this.nodeId + ";" + this.port;
+
+                        // pega o ip local
+                        String myHost = java.net.InetAddress.getLocalHost().getHostAddress();
+
+                        // mensagem: SEARCH;arquivo;id_origem;ip_origem;porta_origem
+                        String payload = "SEARCH;" + file + ";" + this.nodeId + ";" + myHost + ";" + this.port;
+
                         processMessage(payload);
                     } else {
-                        log("Formato inválido.");// [cite: 116, 284]
+                        log("Formato inválido. Use: SEARCH <arquivo>");
                     }
                 } else {
-                    log("Comando desconhecido.");
+                    log("Comando desconhecido. Use SEARCH <arquivo> ou SAIR.");
                 }
+
                 System.out.print(nodeId + "> ");
             }
         } catch (Exception e) {
             log("Erro no console: " + e.getMessage());
         }
     }
+
 
     private void startServer() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -92,39 +100,40 @@ public class P2PNode {
     public void processMessage(String payload) {
         try {
             String[] parts = payload.split(";");
-            if (parts.length < 4 || !parts[0].equals("SEARCH")) {
-                log("Mensagem mal formatada recebida: " + payload);
-                return;
-            }
-            String file = parts[1];
-            String originId = parts[2];
-            int originPort = Integer.parseInt(parts[3]);
+            String type = parts[0];
 
-            if (isResponsible(file)) {
-                log("ARQUIVO ENCONTRADO! '" + file + "' está neste nó (" + nodeId + ").");
-                log("(Busca originada por: " + originId + ")");
-                // envia a resposta de volta para a origem
-                String response = "FOUND;" + file + ";" + this.nodeId;
-                sendMessage(originPort, response);
-            } else {
-                // se não está aqui, encaminho para o sucessor
-                log("Arquivo '" + file + "' não está aqui. Encaminhando para " + successorPort + "...");
-                sendMessage(successorPort, payload); // encaminha a mensagem original
+            if (type.equals("SEARCH")) {
+                String file = parts[1];
+                String originId = parts[2];
+                String originHost = parts[3];
+                int originPort = Integer.parseInt(parts[4]);
+
+                if (isResponsible(file)) {
+                    log("ARQUIVO ENCONTRADO! '" + file + "' está neste nó (" + nodeId + ").");
+                    String response = "FOUND;" + file + ";" + this.nodeId;
+                    sendMessage(originHost, originPort, response);
+                } else {
+                    log("Encaminhando busca de '" + file + "' para sucessor...");
+                    sendMessage(successorHost, successorPort, payload);
+                }
             }
+
         } catch (Exception e) {
             log("Erro ao processar mensagem: " + e.getMessage());
         }
     }
 
-    public void sendMessage(int destinationPort, String payload) {
-        log("Enviando (plano): " + payload + " para " + destinationPort);
-        try (Socket socket = new Socket(successorHost, destinationPort);
+
+    public void sendMessage(String host, int destinationPort, String payload) {
+        log("Enviando para " + host + ":" + destinationPort + " -> " + payload);
+        try (Socket socket = new Socket(host, destinationPort);
              DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
             outputStream.writeUTF(payload);
         } catch (Exception e) {
-            log("ERRO ao encaminhar para " + destinationPort + ": " + e.getMessage());
+            log("ERRO ao enviar para " + host + ":" + destinationPort + " - " + e.getMessage());
         }
     }
+
 
     private boolean isResponsible(String file) {
         try {
