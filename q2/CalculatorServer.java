@@ -39,13 +39,15 @@ public class CalculatorServer {
         String[] services = {"SOMA", "SUBTRACAO", "MULTIPLICACAO", "DIVISAO"};
         System.out.println("Worker(" + port + "): Registrando serviços no Diretório...");
 
+        String myHost = "172.25.10.123";
+
         for (String service : services) {
             try (Socket socket = new Socket(DIRECTORY_HOST, DIRECTORY_PORT);
                  DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
                  DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
                 // formato: REGISTER:serviceName:ip:porta [cite: 88]
-                String registerMessage = "REGISTER:" + service + ":localhost:" + port;
+                String registerMessage = "REGISTER:" + service + ":" + myHost + ":" + port;
                 outputStream.writeUTF(registerMessage);
 
                 String response = inputStream.readUTF();
